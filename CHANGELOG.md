@@ -12,7 +12,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.1.0] - 2026-08-23
 
 ### Added
-- Initial pre-release for VS Code Marketplace (publisher `ochoche`).
+- Initial pre-release for VS Code Marketplace (publisher `ochochecharles`).
 - Command `lazyreq.generate` (`onCommand:lazyreq.generate` activation) – inserts generated JSON at cursor.
 - TypeScript `TypeChecker`-based DTO resolution (`src/parser.ts`) supporting cross-file imports, nested DTOs, arrays, enums.
 - Rule-based samples: `IsEmail`, `IsUrl`, `IsUUID`, `IsMobilePhone`/`IsPhoneNumber`, `IsDate`, `IsEnum` (including `IsOptional` + enum union), `IsInt`/`number`, `boolean`.

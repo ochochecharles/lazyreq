@@ -3,7 +3,7 @@
   "displayName": "LazyReq NestJS",
   "description": "Generate request body JSON from your NestJS controller DTOs — no more hand-typing payloads.",
   "version": "0.1.1",
-  "publisher": "ochoche",
+  "publisher": "ochochecharles",
   "license": "MIT",
   "repository": {
     "type": "git",

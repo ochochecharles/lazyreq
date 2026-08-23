@@ -82,7 +82,7 @@ No settings in v1 (per `lazyreq-spec.md:41`). Future: `.vscode/settings.json` ov
 
 ### 0.1.0 — Pre-release (preview)
 
-* Initial preview for VS Code Marketplace (`publisher: ochoche`).
+* Initial preview for VS Code Marketplace (`publisher: ochochecharles`).
 * Command `lazyreq.generate` with `onCommand` activation.
 * Fixes: `IsEnum`+`IsOptional` union, `IsUUID`/`IsMobilePhone` samples, numeric enum support.
 
