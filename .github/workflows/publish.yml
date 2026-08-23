@@ -45,19 +45,20 @@ jobs:
 
       - name: Publish to VS Code Marketplace (Trusted Publishing)
         run: |
-          # v0.1.0 was manually uploaded via drag (Manage Publishers screenshot: Verifying 0.1.0),
-          # so tag push of same version will error "Version already exists" – treat as success.
+          # v0.1.0 was manually uploaded via drag (Manage Publishers: Verifying 0.1.0 -> 0.1.0 green),
+          # so re-publishing same version errors "already exists" – treat as success.
+          # vsce 3.9.2 has no --trusted-publishing flag; Trusted Publishing uses OIDC via --azure-credential (id-token: write).
           set +e
           LOG=$(mktemp)
           if [ "${{ github.ref_type }}" = "tag" ]; then
             echo "Tag push: ${{ github.ref_name }} – publishing as pre-release" | tee $LOG
-            npx --yes @vscode/vsce publish --trusted-publishing --pre-release 2>&1 | tee -a $LOG
+            npx --yes @vscode/vsce publish --azure-credential --pre-release --skip-duplicate 2>&1 | tee -a $LOG
             STATUS=${PIPESTATUS[0]}
           elif [ "${{ github.event.inputs.prerelease }}" = "false" ]; then
-            npx --yes @vscode/vsce publish --trusted-publishing 2>&1 | tee $LOG
+            npx --yes @vscode/vsce publish --azure-credential --skip-duplicate 2>&1 | tee -a $LOG
             STATUS=${PIPESTATUS[0]}
           else
-            npx --yes @vscode/vsce publish --trusted-publishing --pre-release 2>&1 | tee $LOG
+            npx --yes @vscode/vsce publish --azure-credential --pre-release --skip-duplicate 2>&1 | tee -a $LOG
             STATUS=${PIPESTATUS[0]}
           fi
           if [ $STATUS -ne 0 ]; then
@@ -65,7 +66,7 @@ jobs:
               echo "✓ Version already exists – expected for re-run of v0.1.0, marking as success."
               exit 0
             fi
-            echo "✗ Publish failed ($STATUS). If you see 'Trusted publisher not configured', do: https://marketplace.visualstudio.com/manage/publishers/ochoche -> Trusted Publishing -> Add GitHub ochochecharles/lazyreq + workflow publish.yml"
+            echo "✗ Publish failed ($STATUS). If you see 'Trusted publisher not configured', add it: https://marketplace.visualstudio.com/manage/publishers/ochoche -> Trusted Publishing -> Add GitHub ochochecharles/lazyreq + workflow publish.yml"
             cat $LOG
           fi
           exit $STATUS
