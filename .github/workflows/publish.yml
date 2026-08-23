@@ -1,0 +1,57 @@
+name: Publish LazyReq
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Publish as pre-release (0.1.0 preview)'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: read
+  id-token: write  # Required for Trusted Publishing (OIDC)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Typecheck + Lint + Build
+        run: npm run package
+
+      - name: Compile tests
+        run: npm run compile-tests
+
+      # Optional: run extension tests (requires xvfb on linux)
+      # - name: Run tests
+      #   uses: coactions/setup-xvfb@v1
+      #   with:
+      #     run: npm test
+
+      - name: Publish to VS Code Marketplace (Trusted Publishing)
+        run: |
+          if [ "${{ github.event.inputs.prerelease }}" = "false" ]; then
+            npx --yes @vscode/vsce publish --trusted-publishing
+          else
+            # Default: pre-release for 0.1.0 – remove --pre-release when you promote to 1.0.0 stable
+            npx --yes @vscode/vsce publish --trusted-publishing --pre-release
+          fi
+
+      # Optional: also publish to Open VSX (uncomment if needed)
+      # - name: Publish to Open VSX
+      #   run: npx --yes ovsx publish --pre-release
