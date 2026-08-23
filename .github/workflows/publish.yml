@@ -45,12 +45,30 @@ jobs:
 
       - name: Publish to VS Code Marketplace (Trusted Publishing)
         run: |
-          if [ "${{ github.event.inputs.prerelease }}" = "false" ]; then
-            npx --yes @vscode/vsce publish --trusted-publishing
+          # v0.1.0 was manually uploaded via drag (Manage Publishers screenshot: Verifying 0.1.0),
+          # so tag push of same version will error "Version already exists" – treat as success.
+          set +e
+          LOG=$(mktemp)
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "Tag push: ${{ github.ref_name }} – publishing as pre-release" | tee $LOG
+            npx --yes @vscode/vsce publish --trusted-publishing --pre-release 2>&1 | tee -a $LOG
+            STATUS=${PIPESTATUS[0]}
+          elif [ "${{ github.event.inputs.prerelease }}" = "false" ]; then
+            npx --yes @vscode/vsce publish --trusted-publishing 2>&1 | tee $LOG
+            STATUS=${PIPESTATUS[0]}
           else
-            # Default: pre-release for 0.1.0 – remove --pre-release when you promote to 1.0.0 stable
-            npx --yes @vscode/vsce publish --trusted-publishing --pre-release
+            npx --yes @vscode/vsce publish --trusted-publishing --pre-release 2>&1 | tee $LOG
+            STATUS=${PIPESTATUS[0]}
           fi
+          if [ $STATUS -ne 0 ]; then
+            if grep -qi "already exists\|Version.*exists" $LOG; then
+              echo "✓ Version already exists – expected for re-run of v0.1.0, marking as success."
+              exit 0
+            fi
+            echo "✗ Publish failed ($STATUS). If you see 'Trusted publisher not configured', do: https://marketplace.visualstudio.com/manage/publishers/ochoche -> Trusted Publishing -> Add GitHub ochochecharles/lazyreq + workflow publish.yml"
+            cat $LOG
+          fi
+          exit $STATUS
 
       # Optional: also publish to Open VSX (uncomment if needed)
       # - name: Publish to Open VSX
