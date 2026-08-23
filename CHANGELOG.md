@@ -4,6 +4,11 @@ All notable changes to the "lazyreq" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.1] - 2026-08-23
+
+### Fixed
+- **Critical:** Bundle `typescript` into `dist/extension.js` (was `external: ['vscode','typescript']`) – Marketplace host has no `typescript` module, causing `command 'lazyreq.generate' not found` on activation. Now fully bundled offline.
+
 ## [0.1.0] - 2026-08-23
 
 ### Added
